@@ -5,7 +5,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 # Loading in the data, renaming columns, and generally making the data ready for plotting
-#https://www.kite.com/python/answers/how-to-drop-empty-rows-from-a-pandas-dataframe-in-python drop NA
 df15 = pd.read_csv('2015.csv')
 df16 = pd.read_csv('2016.csv')
 df17 = pd.read_csv('2017.csv')
@@ -49,30 +48,112 @@ df17['Year']=2017
 df18['Year']=2018
 df19['Year']=2019
 
+colors = {'Western Europe': 0, 'North America': 1, 'Australia and New Zealand': 2,
+          'Middle East and Northern Africa': 3, 'Latin America and Caribbean': 4,
+          'Southeastern Asia': 5, 'Central and Eastern Europe': 6, 'Eastern Asia': 7,
+          'Sub-Saharan Africa': 8, 'Southern Asia': 9}
+
+df15_mean = df15.groupby(['Region']).mean()
+
+def bars():
+
+    fig = make_subplots(rows=2, cols=1,
+                        subplot_titles=['Each Countries Happiness Score Seperated in Regions', 'Hej'])
+
+    for i in df15['Region'].unique():
+        dfn = df15[df15['Region']==i]
+        fig.add_trace(trace=go.Bar(x=dfn['Country'],
+                                   y=dfn['Happiness Score'],
+                                   name=i,
+                                   marker_color=colors[i]),
+                      row=1, col=1)
+
+    #KeyError: Happiness Score??
+    # for columns in df15_mean:
+    #     df15_m = df15_mean.drop(columns=['Happiness Score', 'Standard Error', 'Dystopia Residual', 'Year'])
+    #     print(df15_m.columns)
+    #     fig.add_trace(trace=go.Bar(x=df15_m[columns],
+    #                                y=df15_m[columns],
+    #                                name=df15_m.index,
+    #                                marker_color=colors[df15_m.index]),
+    #                   row=2, col=1)
+
+    for j in df15_mean.index:
+        dfm = df15_mean[df15_mean.index==j]
+        dfm = dfm.drop(columns=['Happiness Score', 'Standard Error', 'Dystopia Residual', 'Year'])
+        print(dfm.columns)
+        for columns in dfm:
+            fig.add_trace(trace=go.Bar(x=dfm.index,
+                                       y=dfm[columns],
+                                       name=columns,
+                                       marker_color=colors[j]),
+                          row=2, col=1)
 
 
 
 
+    # for i in df15_mean.index:
+    #     fig.add_trace(trace=go.Scatter(
+    #         x=df15_mean.index, y=df15_mean['Economy (GDP per Capita)'],
+    #         mode='markers', name=i, marker_color=colors[i]), row=2, col=1)
 
+    #https://stackoverflow.com/questions/56289777/coloring-scatter-plot-points-differently-based-on-certain-conditions
+    #https://stackoverflow.com/questions/51181729/custom-plotly-markers-based-on-variable-value
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Economy (GDP per Capita)'],
+    #                          mode='markers', showlegend=False, name="GDP"), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Family'],
+    #                          mode='markers', showlegend=False, name="Family"), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Health (Life Expectancy)'],
+    #                          mode='markers', showlegend=False, name="Life Expectancy"), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Freedom'],
+    #                          mode='markers', showlegend=False, name="Freedom"), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Trust (Government Corruption)'],
+    #                          mode='markers', showlegend=False, name="Trust"), row=2, col=1)
+    # fig.add_trace(go.Scatter(x=df15_mean.index, y=df15_mean['Generosity'],
+    #                          mode='markers', showlegend=False, name="Generosity"), row=2, col=1)
 
-# https://xang1234.github.io/bubbleplot/
+    fig.update_layout(barmode='stack', xaxis2={'categoryorder': 'category ascending'})
+
+    fig.update_xaxes(title_text="Country", row=1, col=1)
+    fig.update_xaxes(title_text="Regions", row=2, col=1)
+
+    fig.update_yaxes(title_text="Happiness Score", row=1, col=1)
+    fig.update_yaxes(title_text="Explanotory Variables", row=2, col=1)
+
+    fig.show()
+
+bars()
+
+#https://xang1234.github.io/bubbleplot/
+#https://www.youtube.com/watch?v=Uu2mfzWajQY&list=PLH6mU1kedUy9HTC1n9QYtVHmJRHQ97DBa&index=16
 def bubble():
-    # fig = go.Figure(data=[go.Scatter(
-    #     x=df15['Family'],
-    #     y=df15['Health (Life Expectancy)'],
-    #     mode='markers',
-    #     marker=dict(
-    #         color=df15['Region'],
-    #         showscale=True,
-    #         size=df15['Happiness Score'] * 4
-    #     )
-    # )])
 
-    # https://community.plotly.com/t/multiple-traces-plotly-express/23360
-    fig = px.scatter(df15, x='Family', y='Health (Life Expectancy)',
-                     color='Region', size='Happiness Score', hover_name='Country')
-    #fig.add_trace(px.scatter())
+    fig = go.Figure()
+
+    for i in df15['Region'].unique():
+        dfn = df15[df15['Region'] == i]
+        fig.add_trace(go.Scatter(x=dfn['Economy (GDP per Capita)'],
+                                 y=dfn['Health (Life Expectancy)'],
+                                 text=dfn['Country'],
+                                 mode='markers',
+                                 name=i,
+                                 marker=dict(
+                                     size=3 * dfn['Happiness Score'],
+                                     opacity=0.8)
+                                 ))
+
     fig.update_layout(
+        title='Bubble Chart and Happiness Data',
+        xaxis_title='Country GDP',
+        yaxis_title='Life Expectancy',
+        legend_title='Different Regions',
+
+        yaxis=dict(
+            tickmode='linear',
+            tick0=0.6,
+            dtick=0.1
+        ),
+
         updatemenus=[
             dict(
                 direction="down",
@@ -84,37 +165,36 @@ def bubble():
                     dict(label="GDP per Capita",
                          method="update",
                          args=[
-                             {"x": df15['Economy (GDP per Capita)']},
+                             {"x": df15['Economy (GDP per Capita)'],
+                              "y": df15['Health (Life Expectancy)']},
                              {"xaxis.title.text": "GDP"}
                          ],),
                     dict(label="Family",
                          method="update",
                          args=[
-                             {"x": df15['Family']},
+                             {"x": df15['Family'],
+                              "y": df15['Health (Life Expectancy)']},
                              {"xaxis.title.text": "Family"}
-                         ]),
-                    dict(label="Health",
-                         method="update",
-                         args=[
-                             {"x": df15['Health (Life Expectancy)']},
-                             {"xaxis.title.text": "Life Expectancy"}
                          ]),
                     dict(label="Freedom",
                          method="update",
                          args=[
-                             {"x": df15['Freedom']},
-                             {"xaxis.title.text": "Freedom"}
+                             {"x": df15['Freedom'],
+                              "y": df15['Health (Life Expectancy)']},
+                             {"xaxis.title.text.text": "Freedom"}
                          ]),
                     dict(label="Trust",
                          method="update",
                          args=[
-                             {"x": df15['Trust (Government Corruption)']},
+                             {"x": df15['Trust (Government Corruption)'],
+                              "y": df15['Health (Life Expectancy)']},
                              {"xaxis.title.text": "Trust"}
                          ]),
                     dict(label="Generosity",
                          method="update",
                          args=[
-                             {"x": df15['Generosity']},
+                             {"x": df15['Generosity'],
+                              "y": df15['Health (Life Expectancy)']},
                              {"xaxis.title.text": "Generosity"}
                          ])
 
@@ -123,10 +203,10 @@ def bubble():
     fig.show()
 
 
-bubble()
+#bubble()
 
 def spatial():
-    fig = make_subplots(rows=1, cols=2, specs=[[{'type': 'choropleth'}, {'type': 'xy'}]])
+    fig = make_subplots(rows=2, cols=1, specs=[[{'type': 'choropleth'}, {'type': 'xy'}]])
 
     fig.add_trace(go.Choropleth(
         locations=df15['Country'],
