@@ -77,18 +77,28 @@ def bars():
                                    y=dfn['Happiness Score'],
                                    name=i,
                                    marker_color=colors[i],
-                                   hovertemplate='<b>Country</b> : %{x}' +
-                                                 '<br><b>Happiness Score</b> : %{y:.2f}',
+                                   hovertemplate='<b>Region</b> : ' + dfn['Region'] +
+                                                 '<br><b>Country</b> : %{x}' +
+                                                 '<br><b>Happiness Score</b> : %{y:.2f}<extra></extra>',
                                    legendgroup=i),
                       row=1, col=1)
+
+    fig.add_shape(type='line', line=dict(color='Black', dash='dot'), opacity=0.5,
+                  x0=0, y0=avg_happy_score15,
+                  x1=1, y1=avg_happy_score15,
+                  xref='paper', yref='y')
+
+    fig.add_annotation(x=130, y=avg_happy_score15+0.3,
+                       text="Average Happiness Score: 5.38", showarrow=True, arrowhead=1)
 
     for i in df_new.columns.unique():
         fig.add_trace(trace=go.Bar(x=df_new.index,
                                    y=df_new[i],
                                    name=i,
                                    marker_color=colors[i],
-                                   hovertemplate='<b>Variable</b> : %{x}' +
-                                                 '<br><b>Average Regional Value</b> : %{y:.2f}',
+                                   hovertemplate='<b>Region</b> : ' + df_new.columns +
+                                                 '<br><b>Variable</b> : %{x}' +
+                                                 '<br><b>Average Regional Value</b> : %{y:.2f}<extra></extra>',
                                    legendgroup=i,
                                    showlegend=False),
                       row=2, col=1)
@@ -113,7 +123,7 @@ def bars():
 
     fig.show()
 
-#bars()
+bars()
 
 def bubble():
 
@@ -125,9 +135,10 @@ def bubble():
         fig.add_trace(go.Scatter(x=dfn['Economy (GDP per Capita)'],
                                  y=dfn['Health (Life Expectancy)'],
                                  customdata=dfn['Country'],
-                                 hovertemplate='<b>Country</b> : %{customdata}'+
-                                 '<br><b>Happiness Score</b> : %{marker.size:.2f}<br>'+
-                                 'X & Y values : %{x:.2f} , %{y:.2f}',
+                                 hovertemplate='<b>Region</b> : ' + dfn['Region'] +
+                                               '<br><b>Country</b> : %{customdata}' +
+                                               '<br><b>Happiness Score</b> : %{marker.size:.2f}<br>' +
+                                               'X & Y values : %{x:.2f} , %{y:.2f}<extra></extra>',
                                  mode='markers',
                                  name=i,
                                  marker=dict(
@@ -146,7 +157,7 @@ def bubble():
 
         yaxis=dict(
             tickmode='linear',
-            tick0=0.6,
+            tick0=0,
             dtick=0.1
         ),
 
@@ -176,15 +187,19 @@ def spatial():
     fig = go.Figure()
 
     fig.add_trace(go.Choropleth(
+        #https://plotly.github.io/plotly.py-docs/generated/plotly.graph_objects.Choropleth.html
         locations=df15['Country'],
         z=df15['Happiness Score'].astype(float),
         locationmode='country names',
+        hovertemplate='<b>Country</b> : ' + df15['Country'] +
+                      '<br><b>Happiness Score</b> : %{z:.2f}<extra></extra>',
         #Måske udregn average happiness score og brug den som midtpunkt for colorscale
         #https://plotly.com/python/colorscales/
         colorscale='Viridis',
         zauto=True,
         zmid=avg_happy_score15,
-        colorbar_title='Happiness<br>Score'
+        colorbar=dict(title='Happiness<br>Score',
+                      x=0.89),
     ))
 
     fig.update_layout(
@@ -193,4 +208,4 @@ def spatial():
 
     fig.show()
 
-spatial()
+#spatial()
