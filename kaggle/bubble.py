@@ -83,25 +83,55 @@ def bars():
                                    legendgroup=i),
                       row=1, col=1)
 
-    fig.add_shape(type='line', line=dict(color='Black', dash='dot'), opacity=0.5,
-                  x0=0, y0=avg_happy_score15,
-                  x1=1, y1=avg_happy_score15,
-                  xref='paper', yref='y')
+    average_line = [dict(type="line",
+                         xref="paper", yref="y",
+                         x0=0, y0=avg_happy_score15,
+                         x1=1, y1=avg_happy_score15,
+                         line=dict(color="Black", dash='dot'), opacity=0.5)]
 
-    fig.add_annotation(x=130, y=avg_happy_score15+0.3,
-                       text="Average Happiness Score: 5.38", showarrow=True, arrowhead=1)
+    # fig.add_shape(type='line', line=dict(color='Black', dash='dot'), opacity=0.5,
+    #               x0=0, y0=avg_happy_score15,
+    #               x1=1, y1=avg_happy_score15,
+    #               xref='paper', yref='y')
+
+    annotation = [dict(x=130, y=avg_happy_score15+0.3,
+                       text="Average Happiness Score: 5.38",
+                       showarrow=True, arrowhead=1)]
+
+    # fig.add_annotation(x=130, y=avg_happy_score15+0.3,
+    #                    text="Average Happiness Score: 5.38", showarrow=True, arrowhead=1)
 
     for i in df_new.columns.unique():
         fig.add_trace(trace=go.Bar(x=df_new.index,
                                    y=df_new[i],
                                    name=i,
                                    marker_color=colors[i],
-                                   hovertemplate='<b>Region</b> : ' + df_new.columns +
-                                                 '<br><b>Variable</b> : %{x}' +
-                                                 '<br><b>Average Regional Value</b> : %{y:.2f}<extra></extra>',
+                                   hovertemplate='<b>Average Regional Value</b> : %{y:.2f}<extra></extra>',
                                    legendgroup=i,
                                    showlegend=False),
                       row=2, col=1)
+
+    fig.update_layout(
+        updatemenus=[
+            dict(
+                type="buttons",
+                direction="right",
+                active=0,
+                x=0.7,
+                y=1.12,
+                buttons=[
+                    dict(label="Hide Average Happiness Score",
+                         method="relayout",
+                         args=[{"shapes": [], "annotations": []}]
+                         ),
+                    dict(label="Show Average Happiness Score",
+                         method="relayout",
+                         args=[{"shapes": average_line, "annotations": annotation}]
+                         ),
+                ],
+            )
+        ]
+    )
 
     fig.update_layout(barmode='group', legend_title='<b>Different Regions<b>',)
 
