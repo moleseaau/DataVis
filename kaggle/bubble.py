@@ -67,6 +67,8 @@ df_new = df_new[['Western Europe', 'North America', 'Australia and New Zealand',
 
 avg_happy_score15 = round((df15['Happiness Score'].sum(axis = 0, skipna=True)/(len(df15.index))), 2)
 
+
+
 def bars():
 
     fig = make_subplots(rows=2, cols=1, subplot_titles=['', ''])
@@ -89,17 +91,9 @@ def bars():
                          x1=1, y1=avg_happy_score15,
                          line=dict(color="Black", dash='dot'), opacity=0.5)]
 
-    # fig.add_shape(type='line', line=dict(color='Black', dash='dot'), opacity=0.5,
-    #               x0=0, y0=avg_happy_score15,
-    #               x1=1, y1=avg_happy_score15,
-    #               xref='paper', yref='y')
-
     annotation = [dict(x=130, y=avg_happy_score15+0.3,
                        text="Average Happiness Score: 5.38",
                        showarrow=True, arrowhead=1)]
-
-    # fig.add_annotation(x=130, y=avg_happy_score15+0.3,
-    #                    text="Average Happiness Score: 5.38", showarrow=True, arrowhead=1)
 
     for i in df_new.columns.unique():
         fig.add_trace(trace=go.Bar(x=df_new.index,
@@ -114,10 +108,10 @@ def bars():
     fig.update_layout(
         updatemenus=[
             dict(
-                type="buttons",
-                direction="right",
+                type="dropdown",
+                direction="down",
                 active=0,
-                x=0.7,
+                x=0.81,
                 y=1.12,
                 buttons=[
                     dict(label="Hide Average Happiness Score",
@@ -129,11 +123,30 @@ def bars():
                          args=[{"shapes": average_line, "annotations": annotation}]
                          ),
                 ],
+            ),
+            dict(
+                type="dropdown",
+                direction="down",
+                active=0,
+                x=1,
+                y=1.12,
+                buttons=[
+                    dict(label="Sort in Regions",
+                         method="relayout",
+                         args=[{'xaxis.categoryorder': []}]
+                         ),
+                    dict(label="Sort by Happiness Score",
+                         method="relayout",
+                         args=[{'xaxis.categoryorder': 'total descending'}]
+                         )
+                ]
             )
         ]
     )
 
-    fig.update_layout(barmode='group', legend_title='<b>Different Regions<b>',)
+    fig.update_layout(barmode='group', legend_title='<b>Different Regions<b>',
+                      title='Countries Happiness Score & Regional Average Explanatory Variable Value',
+                      legend=dict(bordercolor="Black", borderwidth=2))
 
     fig.update_yaxes(showspikes=True,
                      spikemode='across',
@@ -177,6 +190,10 @@ def bubble():
                                      opacity=0.8)
                                  ))
 
+
+
+
+
     fig.update_layout(
         title='Bubble Chart and Happiness Data',
         xaxis_title='Country GDP',
@@ -198,6 +215,10 @@ def bubble():
         )
     )
 
+
+
+
+
     fig.add_annotation(dict(x=0.8,
                             y=1.1,
                             showarrow=False,
@@ -209,7 +230,7 @@ def bubble():
     fig.show()
 
 
-#bubble()
+bubble()
 
 
 def spatial():
@@ -217,14 +238,13 @@ def spatial():
     fig = go.Figure()
 
     fig.add_trace(go.Choropleth(
-        #https://plotly.github.io/plotly.py-docs/generated/plotly.graph_objects.Choropleth.html
+        customdata=df15.index,
         locations=df15['Country'],
         z=df15['Happiness Score'].astype(float),
         locationmode='country names',
         hovertemplate='<b>Country</b> : ' + df15['Country'] +
+                      '<br><b>Happiness Rank</b> : %{customdata}'+
                       '<br><b>Happiness Score</b> : %{z:.2f}<extra></extra>',
-        #Måske udregn average happiness score og brug den som midtpunkt for colorscale
-        #https://plotly.com/python/colorscales/
         colorscale='Viridis',
         zauto=True,
         zmid=avg_happy_score15,
@@ -238,4 +258,4 @@ def spatial():
 
     fig.show()
 
-#spatial()
+spatial()
