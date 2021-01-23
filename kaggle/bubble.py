@@ -11,8 +11,9 @@ df17 = pd.read_csv('2017.csv')
 df18 = pd.read_csv('2018.csv')
 df19 = pd.read_csv('2019.csv')
 
-df15['Country'] = df15['Country'].replace({'Palestinian Territories': 'Palestine',
-                                           'Somaliland region': 'Somalia', 'Congo (Kinshasa)': 'Congo'})
+df15['Country'] = df15['Country'].replace({'Palestinian Territories': 'Palestine', 'Congo (Brazzaville)': 'Congo',
+                                           'Somaliland region': 'Somalia', 'Congo (Kinshasa)': 'Congo Republic',
+                                           'Central African Republic': 'Central Africa'})
 
 df17 = df17.rename(columns={'Happiness.Score': 'Happiness Score', 'Economy..GDP.per.Capita.': 'Economy (GDP per Capita',
                             'Health..Life.Expectancy.': 'Health (Life Expectancy)', 'Happiness.Rank': 'Happiness Rank',
@@ -230,7 +231,7 @@ def bubble():
     fig.show()
 
 
-bubble()
+#bubble()
 
 
 def spatial():
@@ -258,4 +259,4 @@ def spatial():
 
     fig.show()
 
-spatial()
+#spatial()
